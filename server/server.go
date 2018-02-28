@@ -13,9 +13,13 @@ import (
 type Server struct {
 	Addr     string
 	Protocol interfaces.Protocol
+
 	listener net.Listener
 	close    chan struct{}
 	once     sync.Once
+
+	hubMutex sync.Mutex
+	Hub      interfaces.Hub
 }
 
 // NewServer creates a non-TLS TCP server.
@@ -60,6 +64,8 @@ func (srv *Server) Serve(l net.Listener) error {
 			return err
 		}
 
+		srv.Put(conn)
+
 		if srv.Protocol != nil {
 			go srv.Protocol.Handler(conn, srv.close)
 		}
@@ -70,7 +76,44 @@ func (srv *Server) Serve(l net.Listener) error {
 func (srv *Server) Close() (err error) {
 	srv.once.Do(func() {
 		close(srv.close)
+		srv.Destroy()
 	})
 
 	return nil
+}
+
+// Put a new connection to hub.
+func (srv *Server) Put(conn net.Conn) error {
+	if srv.Hub == nil {
+		return nil
+	}
+
+	srv.hubMutex.Lock()
+	defer srv.hubMutex.Unlock()
+
+	return srv.Hub.Put(conn)
+}
+
+// Remove a connection from hub, not responsible for closing the connection.
+func (srv *Server) Remove(conn net.Conn) error {
+	if srv.Hub == nil {
+		return nil
+	}
+
+	srv.hubMutex.Lock()
+	defer srv.hubMutex.Unlock()
+
+	return srv.Hub.Remove(conn)
+}
+
+// Destroy a hub.
+func (srv *Server) Destroy() error {
+	if srv.Hub == nil {
+		return nil
+	}
+
+	srv.hubMutex.Lock()
+	defer srv.hubMutex.Unlock()
+
+	return srv.Hub.Destroy()
 }
