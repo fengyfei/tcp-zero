@@ -1,8 +1,4 @@
-/*
- * Revision History:
- *     Initial: 2018/02/28        Feng Yifei
- */
-
+// Package server provides a generic TCP server implementation.
 package server
 
 import (

@@ -1,8 +1,4 @@
-/*
- * Revision History:
- *     Initial: 2018/02/28        Feng Yifei
- */
-
+// A simple TCP server.
 package main
 
 import (

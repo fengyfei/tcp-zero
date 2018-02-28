@@ -1,8 +1,4 @@
-/*
- * Revision History:
- *     Initial: 2018/02/28        Feng Yifei
- */
-
+// Package interfaces defines minimum behaviour of a TCP server.
 package interfaces
 
 import (
