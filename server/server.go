@@ -64,10 +64,11 @@ func (srv *Server) Serve(l net.Listener) error {
 			return err
 		}
 
-		srv.Put(conn)
+		session := newSession(conn)
+		srv.Put(session)
 
 		if srv.Protocol != nil {
-			go srv.Protocol.Handler(conn, srv.close)
+			go srv.Protocol.Handler(session, srv.close)
 		}
 	}
 }
@@ -83,7 +84,7 @@ func (srv *Server) Close() (err error) {
 }
 
 // Put a new connection to hub.
-func (srv *Server) Put(conn net.Conn) error {
+func (srv *Server) Put(session interfaces.Session) error {
 	if srv.Hub == nil {
 		return nil
 	}
@@ -91,11 +92,11 @@ func (srv *Server) Put(conn net.Conn) error {
 	srv.hubMutex.Lock()
 	defer srv.hubMutex.Unlock()
 
-	return srv.Hub.Put(conn)
+	return srv.Hub.Put(session)
 }
 
 // Remove a connection from hub, not responsible for closing the connection.
-func (srv *Server) Remove(conn net.Conn) error {
+func (srv *Server) Remove(session interfaces.Session) error {
 	if srv.Hub == nil {
 		return nil
 	}
@@ -103,7 +104,7 @@ func (srv *Server) Remove(conn net.Conn) error {
 	srv.hubMutex.Lock()
 	defer srv.hubMutex.Unlock()
 
-	return srv.Hub.Remove(conn)
+	return srv.Hub.Remove(session)
 }
 
 // Destroy a hub.
