@@ -11,7 +11,7 @@ type Session interface {
 	Conn() net.Conn
 
 	// Send a message.
-	Send(msg Message) error
+	Send(msg Message) bool
 
 	// Close the session.
 	Close() error

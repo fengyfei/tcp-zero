@@ -8,12 +8,14 @@ import (
 )
 
 type session struct {
-	conn net.Conn
+	conn  net.Conn
+	queue interfaces.Queue
 }
 
 func newSession(conn net.Conn) interfaces.Session {
 	return &session{
-		conn: conn,
+		conn:  conn,
+		queue: newQueue(0),
 	}
 }
 
@@ -21,10 +23,12 @@ func (s *session) Conn() net.Conn {
 	return s.conn
 }
 
-func (s *session) Send(msg interfaces.Message) error {
-	return nil
+func (s *session) Send(msg interfaces.Message) bool {
+	return s.queue.Put(msg)
 }
 
 func (s *session) Close() error {
-	return nil
+	s.queue.Close()
+
+	return s.conn.Close()
 }
