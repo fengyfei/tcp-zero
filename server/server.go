@@ -28,6 +28,7 @@ func NewServer(addr string, protocol interfaces.Protocol) *Server {
 		Addr:     addr,
 		Protocol: protocol,
 		close:    make(chan struct{}),
+		Hub:      newHub(),
 	}
 }
 
@@ -66,6 +67,12 @@ func (srv *Server) Serve(l net.Listener) error {
 
 		session := newSession(conn)
 		srv.Put(session)
+
+		go func() {
+			for {
+				session.Send()
+			}
+		}()
 
 		if srv.Protocol != nil {
 			go srv.Protocol.Handler(session, srv.close)
