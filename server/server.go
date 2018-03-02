@@ -5,6 +5,7 @@ import (
 	"net"
 	"sync"
 	"time"
+	"fmt"
 
 	"github.com/fengyfei/tcp-zero/interfaces"
 )
@@ -28,6 +29,7 @@ func NewServer(addr string, protocol interfaces.Protocol) *Server {
 		Addr:     addr,
 		Protocol: protocol,
 		close:    make(chan struct{}),
+		Hub:      newHub(),
 	}
 }
 
@@ -66,6 +68,10 @@ func (srv *Server) Serve(l net.Listener) error {
 
 		session := newSession(conn)
 		srv.Put(session)
+
+		go func() {
+			srv.Send(*session)
+		}()
 
 		if srv.Protocol != nil {
 			go srv.Protocol.Handler(session, srv.close)
@@ -117,4 +123,16 @@ func (srv *Server) Destroy() error {
 	defer srv.hubMutex.Unlock()
 
 	return srv.Hub.Destroy()
+}
+
+func (srv *Server) Send(session session) {
+	for {
+		msg, _ := session.queue.Wait()
+		b, _ := msg.Encode()
+
+		_, err := session.conn.Write(b)
+		if err != nil {
+			fmt.Errorf(err.Error())
+		}
+	}
 }

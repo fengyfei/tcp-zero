@@ -10,7 +10,7 @@ type Session interface {
 	// Conn returns the underlying net.Conn.
 	Conn() net.Conn
 
-	// Send a message.
+	// Send a message to queue.
 	Send(msg Message) bool
 
 	// Close the session.
