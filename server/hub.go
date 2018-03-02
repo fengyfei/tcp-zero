@@ -31,10 +31,11 @@ package server
 
 import (
 	"sync"
-	"github.com/fengyfei/tcp-zero/interfaces"
 	"bytes"
 	"encoding/gob"
 	"crypto/sha256"
+
+	"github.com/fengyfei/tcp-zero/interfaces"
 )
 
 type hub struct {

@@ -12,7 +12,7 @@ type session struct {
 	queue interfaces.Queue
 }
 
-func newSession(conn net.Conn) interfaces.Session {
+func newSession(conn net.Conn) *session {
 	return &session{
 		conn:  conn,
 		queue: newQueue(0),
@@ -23,11 +23,11 @@ func (s *session) Conn() net.Conn {
 	return s.conn
 }
 
-func (s *session) Put(msg interfaces.Message) bool {
+func (s *session) Send(msg interfaces.Message) bool {
 	return s.queue.Put(msg)
 }
 
-func (s *session) Send() bool {
+/*func (s *session) Send() bool {
 	msg, ok := s.queue.Wait()
 	if !ok {
 		return ok
@@ -44,7 +44,7 @@ func (s *session) Send() bool {
 	}
 
 	return true
-}
+}*/
 
 func (s *session) Close() error {
 	s.queue.Close()

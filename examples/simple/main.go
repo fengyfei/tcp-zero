@@ -4,8 +4,9 @@ package main
 import (
 	"fmt"
 	"bufio"
-	"github.com/fengyfei/tcp-zero/server"
+
 	"github.com/fengyfei/tcp-zero/interfaces"
+	"github.com/fengyfei/tcp-zero/server"
 )
 
 func main() {
@@ -23,7 +24,7 @@ func (h *Handler) Handler(session interfaces.Session, close <-chan struct{}) {
 	reader := bufio.NewReader(conn)
 
 	msg := server.NewMsg("welcome to tcp-zero \n")
-	session.Put(msg)
+	session.Send(msg)
 
 	for {
 		line, err := reader.ReadString(byte('\n'))
@@ -32,7 +33,7 @@ func (h *Handler) Handler(session interfaces.Session, close <-chan struct{}) {
 		}
 
 		msg := server.NewMsg(fmt.Sprintf("you said: %s \n", line))
-		session.Put(msg)
+		session.Send(msg)
 		fmt.Print("receive ", line)
 	}
 
